@@ -1,0 +1,46 @@
+name: Deploy AS3 to BIG-IP
+
+# Deploys an AS3 declaration to the target BIG-IP.
+# Credentials come from repository secrets (never commit them):
+#   BIGIP_HOST - management IP/hostname of the BIG-IP (e.g. 192.168.200.201)
+#   BIGIP_USER - admin username
+#   BIGIP_PASS - admin password
+#
+# Trigger manually from the Actions tab and pick which declaration to push.
+
+on:
+  workflow_dispatch:
+    inputs:
+      declaration:
+        description: "Path to the AS3 declaration to deploy"
+        required: true
+        default: "declarations/concavo.local-dns-express.json"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: POST declaration to AS3 endpoint
+        env:
+          BIGIP_HOST: ${{ secrets.BIGIP_HOST }}
+          BIGIP_USER: ${{ secrets.BIGIP_USER }}
+          BIGIP_PASS: ${{ secrets.BIGIP_PASS }}
+          DECLARATION: ${{ github.event.inputs.declaration }}
+        run: |
+          set -euo pipefail
+          echo "Deploying $DECLARATION to https://$BIGIP_HOST/mgmt/shared/appsvcs/declare"
+          http_code=$(curl -sk -o response.json -w '%{http_code}' \
+            -u "$BIGIP_USER:$BIGIP_PASS" \
+            -H "Content-Type: application/json" \
+            -X POST "https://$BIGIP_HOST/mgmt/shared/appsvcs/declare" \
+            -d @"$DECLARATION")
+          echo "HTTP $http_code"
+          cat response.json
+          # AS3 returns 200 (sync) or 202 (async accepted) on success
+          case "$http_code" in
+            200|202) echo "Deployment submitted." ;;
+            *) echo "Deployment failed (HTTP $http_code)"; exit 1 ;;
+          esac

@@ -1,0 +1,39 @@
+{
+  "class": "AS3",
+  "action": "deploy",
+  "persist": true,
+  "declaration": {
+    "class": "ADC",
+    "schemaVersion": "3.30.0",
+    "id": "concavo_local_dns_express",
+    "label": "concavo.local authoritative DNS (DNS Express)",
+    "remark": "BIG-IP as authoritative nameserver for concavo.local via DNS Express, pulling AXFR from 192.168.0.1",
+    "Sample_DNS_01": {
+      "class": "Tenant",
+      "DNS_App": {
+        "class": "Application",
+        "concavo_backend_ns": {
+          "class": "DNS_Nameserver",
+          "label": "Back-end authoritative DNS server for concavo.local",
+          "address": "192.168.0.1",
+          "port": 53
+        },
+        "concavo.local": {
+          "class": "DNS_Zone",
+          "label": "concavo.local DNS Express zone",
+          "dnsExpress": {
+            "enabled": true,
+            "nameserver": {
+              "use": "concavo_backend_ns"
+            },
+            "allowNotifyFrom": [
+              "192.168.0.1"
+            ],
+            "notifyAction": "consume",
+            "verifyNotifyTsig": false
+          }
+        }
+      }
+    }
+  }
+}
