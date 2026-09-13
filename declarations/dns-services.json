@@ -1,0 +1,97 @@
+{
+  "class": "AS3",
+  "action": "deploy",
+  "persist": true,
+  "declaration": {
+    "class": "ADC",
+    "schemaVersion": "3.30.0",
+    "id": "concavo_dns_services",
+    "label": "DNS services: concavo.local (DNS Express), example.com (local), forward to 192.168.0.1",
+    "remark": "BIG-IP authoritative for concavo.local via DNS Express, authoritative for example.com via local zone, forwards all other (internet) queries to 192.168.0.1, served by a UDP/TCP listener on port 53",
+    "Sample_DNS_01": {
+      "class": "Tenant",
+      "DNS_App": {
+        "class": "Application",
+        "concavo_backend_ns": {
+          "class": "DNS_Nameserver",
+          "label": "Back-end authoritative server for concavo.local (AXFR source)",
+          "address": "192.168.0.1",
+          "port": 53
+        },
+        "concavo.local": {
+          "class": "DNS_Zone",
+          "label": "concavo.local DNS Express zone",
+          "dnsExpress": {
+            "enabled": true,
+            "nameserver": {
+              "use": "concavo_backend_ns"
+            },
+            "allowNotifyFrom": [
+              "192.168.0.1"
+            ],
+            "notifyAction": "consume",
+            "verifyNotifyTsig": false
+          }
+        },
+        "dns_forwarding_cache": {
+          "class": "DNS_Cache",
+          "type": "resolver",
+          "label": "Forward internet queries to 192.168.0.1; authoritative local zone example.com",
+          "forwardZones": {
+            ".": {
+              "nameservers": [
+                "192.168.0.1:53"
+              ]
+            }
+          },
+          "localZones": {
+            "example.com": {
+              "type": "static",
+              "records": [
+                "cafe.example.com. 300 IN A 192.168.100.32"
+              ]
+            }
+          }
+        },
+        "dns_profile": {
+          "class": "DNS_Profile",
+          "label": "DNS Express + forwarding cache",
+          "dnsExpressEnabled": true,
+          "cacheEnabled": true,
+          "cache": {
+            "use": "dns_forwarding_cache"
+          },
+          "localBindServerEnabled": false
+        },
+        "dns_listener_udp": {
+          "class": "Service_UDP",
+          "label": "DNS listener UDP/53",
+          "virtualAddresses": [
+            "REPLACE_WITH_LISTENER_IP"
+          ],
+          "virtualPort": 53,
+          "profileUDP": {
+            "bigip": "/Common/udp_gtm_dns"
+          },
+          "profileDNS": {
+            "use": "dns_profile"
+          }
+        },
+        "dns_listener_tcp": {
+          "class": "Service_TCP",
+          "label": "DNS listener TCP/53",
+          "virtualAddresses": [
+            "REPLACE_WITH_LISTENER_IP"
+          ],
+          "virtualPort": 53,
+          "profileTCP": {
+            "bigip": "/Common/f5-tcp-progressive"
+          },
+          "profileDNS": {
+            "use": "dns_profile"
+          }
+        }
+      }
+    }
+  }
+}

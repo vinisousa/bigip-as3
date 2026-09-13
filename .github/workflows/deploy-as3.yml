@@ -14,7 +14,7 @@ on:
       declaration:
         description: "Path to the AS3 declaration to deploy"
         required: true
-        default: "declarations/concavo.local-dns-express.json"
+        default: "declarations/dns-services.json"
 
 jobs:
   deploy:
