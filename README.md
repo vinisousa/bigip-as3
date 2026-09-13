@@ -12,14 +12,12 @@ AS3 (F5 BIG-IP Application Services 3) declarations, version-controlled and depl
 
 Tenant `Sample_DNS_01`, application `DNS_App`:
 
-- **`concavo.local` (authoritative, DNS Express)** — BIG-IP pulls the zone via AXFR from the back-end authoritative server `192.168.0.1` (`DNS_Nameserver` **concavo_backend_ns**) and answers authoritatively.
-- **`example.com` (authoritative, local)** — a DNS Cache *local zone* (type `static`) holding a static record `cafe.example.com → 192.168.100.32`.
-- **Internet forwarding** — a DNS Cache (type `resolver`) with a forward zone `.` sending all other queries to `192.168.0.1:53`.
-- **Listener** — UDP and TCP virtual servers on port `53` bound to a DNS profile (`dns_profile`) that enables DNS Express and references the cache.
+- **`concavo.local` (authoritative, local)** — a DNS Cache *local zone* (type `static`). Authoritative locally, no AXFR/zone transfer. Currently has no records — add A/AAAA entries to its `records` array as needed.
+- **`example.com` (authoritative, local)** — a DNS Cache *local zone* (type `static`) with `cafe.example.com → 192.168.100.32`.
+- **Internet forwarding** — DNS Cache (type `resolver`) forward zone `.` → `192.168.0.1:53` for all other queries.
+- **Listener** — UDP and TCP virtual servers on `192.168.100.32:53` bound to `dns_profile` (which references the cache).
 
-> ⚠️ **Before deploying:** replace `REPLACE_WITH_LISTENER_IP` (two places) with the IP the BIG-IP DNS listener should bind to — a self-IP/listener address on the data plane, **not** the management IP `192.168.200.201`.
-
-Query resolution order: DNS Express (`concavo.local`) → local zone (`example.com`) → forward everything else to `192.168.0.1`.
+Query resolution order: local zones (`concavo.local`, `example.com`) → forward everything else to `192.168.0.1`.
 
 ## Deploying
 
@@ -47,4 +45,4 @@ curl -sk -u "$BIGIP_USER:$BIGIP_PASS" \
 ## Requirements
 
 - BIG-IP with the AS3 extension installed (schemaVersion `3.30.0`+).
-- BIG-IP DNS (GTM) provisioned (DNS Express, DNS caching, DNS listeners).
+- BIG-IP DNS (GTM) provisioned (DNS caching, DNS listeners).

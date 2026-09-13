@@ -6,37 +6,16 @@
     "class": "ADC",
     "schemaVersion": "3.30.0",
     "id": "concavo_dns_services",
-    "label": "DNS services: concavo.local (DNS Express), example.com (local), forward to 192.168.0.1",
-    "remark": "BIG-IP authoritative for concavo.local via DNS Express, authoritative for example.com via local zone, forwards all other (internet) queries to 192.168.0.1, served by a UDP/TCP listener on port 53",
+    "label": "DNS services: concavo.local + example.com (local authoritative), forward to 192.168.0.1",
+    "remark": "BIG-IP authoritative locally for concavo.local and example.com via DNS Cache local zones, forwards all other (internet) queries to 192.168.0.1, served by a UDP/TCP listener on 192.168.100.32:53",
     "Sample_DNS_01": {
       "class": "Tenant",
       "DNS_App": {
         "class": "Application",
-        "concavo_backend_ns": {
-          "class": "DNS_Nameserver",
-          "label": "Back-end authoritative server for concavo.local (AXFR source)",
-          "address": "192.168.0.1",
-          "port": 53
-        },
-        "concavo.local": {
-          "class": "DNS_Zone",
-          "label": "concavo.local DNS Express zone",
-          "dnsExpress": {
-            "enabled": true,
-            "nameserver": {
-              "use": "concavo_backend_ns"
-            },
-            "allowNotifyFrom": [
-              "192.168.0.1"
-            ],
-            "notifyAction": "consume",
-            "verifyNotifyTsig": false
-          }
-        },
         "dns_forwarding_cache": {
           "class": "DNS_Cache",
           "type": "resolver",
-          "label": "Forward internet queries to 192.168.0.1; authoritative local zone example.com",
+          "label": "Authoritative local zones + forward internet queries to 192.168.0.1",
           "forwardZones": {
             ".": {
               "nameservers": [
@@ -45,6 +24,10 @@
             }
           },
           "localZones": {
+            "concavo.local": {
+              "type": "static",
+              "records": []
+            },
             "example.com": {
               "type": "static",
               "records": [
@@ -55,8 +38,8 @@
         },
         "dns_profile": {
           "class": "DNS_Profile",
-          "label": "DNS Express + forwarding cache",
-          "dnsExpressEnabled": true,
+          "label": "Local authoritative zones + forwarding cache",
+          "dnsExpressEnabled": false,
           "cacheEnabled": true,
           "cache": {
             "use": "dns_forwarding_cache"
@@ -67,7 +50,7 @@
           "class": "Service_UDP",
           "label": "DNS listener UDP/53",
           "virtualAddresses": [
-            "REPLACE_WITH_LISTENER_IP"
+            "192.168.100.32"
           ],
           "virtualPort": 53,
           "profileUDP": {
@@ -81,7 +64,7 @@
           "class": "Service_TCP",
           "label": "DNS listener TCP/53",
           "virtualAddresses": [
-            "REPLACE_WITH_LISTENER_IP"
+            "192.168.100.32"
           ],
           "virtualPort": 53,
           "profileTCP": {
