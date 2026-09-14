@@ -15,7 +15,7 @@
         "dns_forwarding_cache": {
           "class": "DNS_Cache",
           "type": "resolver",
-          "label": "Authoritative local zones + forward internet queries to 192.168.0.1",
+          "label": "Local authoritative zones + forward to 192.168.0.1",
           "forwardZones": {
             ".": {
               "nameservers": [
