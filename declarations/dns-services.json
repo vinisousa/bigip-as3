@@ -53,6 +53,7 @@
             "192.168.100.32"
           ],
           "virtualPort": 53,
+          "shareAddresses": true,
           "profileUDP": {
             "bigip": "/Common/udp_gtm_dns"
           },
@@ -67,6 +68,7 @@
             "192.168.100.32"
           ],
           "virtualPort": 53,
+          "shareAddresses": true,
           "profileTCP": {
             "bigip": "/Common/f5-tcp-progressive"
           },
