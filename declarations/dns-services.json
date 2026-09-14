@@ -7,7 +7,7 @@
     "schemaVersion": "3.30.0",
     "id": "concavo_dns_services",
     "label": "DNS: concavo.local + example.com local, forward to 192.168.0.1",
-    "remark": "BIG-IP authoritative locally for concavo.local and example.com via DNS Cache local zones, forwards all other (internet) queries to 192.168.0.1, served by a UDP/TCP listener on 192.168.100.32:53",
+    "remark": "Local zones concavo.local + example.com; forward to 192.168.0.1",
     "Sample_DNS_01": {
       "class": "Tenant",
       "DNS_App": {
