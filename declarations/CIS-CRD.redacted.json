@@ -1,0 +1,246 @@
+{
+  "class": "ADC",
+  "schemaVersion": "3.57.0",
+  "id": "CIS-CRD-export",
+  "CIS-CRD": {
+    "Shared": {
+      "class": "Application",
+      "coffee_svc_8080_cafe_cafe_example_com_coffee": {
+        "class": "Pool",
+        "members": [
+          {
+            "addressDiscovery": "static",
+            "serverAddresses": [
+              "10.128.0.163"
+            ],
+            "servicePort": 8080,
+            "shareNodes": true
+          },
+          {
+            "addressDiscovery": "static",
+            "serverAddresses": [
+              "10.128.0.166"
+            ],
+            "servicePort": 8080,
+            "shareNodes": true
+          },
+          {
+            "addressDiscovery": "static",
+            "serverAddresses": [
+              "10.128.0.167"
+            ],
+            "servicePort": 8080,
+            "shareNodes": true
+          }
+        ],
+        "minimumMonitors": "all",
+        "remark": "crd_192_168_100_32_80 loadbalances this pool"
+      },
+      "crd_192_168_100_32_80": {
+        "source": "0.0.0.0/0",
+        "translateServerAddress": true,
+        "translateServerPort": true,
+        "class": "Service_HTTP",
+        "virtualAddresses": [
+          "192.168.100.32"
+        ],
+        "virtualPort": 80,
+        "snat": "auto",
+        "policyEndpoint": "/CIS-CRD/Shared/crd_192_168_100_32_80_cafe_example_com_policy"
+      },
+      "crd_192_168_100_32_80_cafe_example_com_policy": {
+        "class": "Endpoint_Policy",
+        "rules": [
+          {
+            "name": "vs_cafe_example_com_coffee_coffee_svc_8080_cafe_cafe_example_com_coffee",
+            "conditions": [
+              {
+                "type": "httpHeader",
+                "name": "host",
+                "event": "request",
+                "all": {
+                  "values": [
+                    "cafe.example.com:80",
+                    "cafe.example.com"
+                  ],
+                  "operand": "equals"
+                }
+              },
+              {
+                "type": "httpUri",
+                "name": "1",
+                "event": "request",
+                "index": 1,
+                "pathSegment": {
+                  "values": [
+                    "coffee"
+                  ],
+                  "operand": "equals"
+                }
+              }
+            ],
+            "actions": [
+              {
+                "type": "forward",
+                "event": "request",
+                "select": {
+                  "pool": {
+                    "use": "coffee_svc_8080_cafe_cafe_example_com_coffee"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "name": "vs_cafe_example_com_mocha_mocha_svc_8080_cafe_cafe_example_com_mocha",
+            "conditions": [
+              {
+                "type": "httpHeader",
+                "name": "host",
+                "event": "request",
+                "all": {
+                  "values": [
+                    "cafe.example.com:80",
+                    "cafe.example.com"
+                  ],
+                  "operand": "equals"
+                }
+              },
+              {
+                "type": "httpUri",
+                "name": "1",
+                "event": "request",
+                "index": 1,
+                "pathSegment": {
+                  "values": [
+                    "mocha"
+                  ],
+                  "operand": "equals"
+                }
+              }
+            ],
+            "actions": [
+              {
+                "type": "forward",
+                "event": "request",
+                "select": {
+                  "pool": {
+                    "use": "mocha_svc_8080_cafe_cafe_example_com_mocha"
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "name": "vs_cafe_example_com_tea_tea_svc_8080_cafe_cafe_example_com_tea",
+            "conditions": [
+              {
+                "type": "httpHeader",
+                "name": "host",
+                "event": "request",
+                "all": {
+                  "values": [
+                    "cafe.example.com:80",
+                    "cafe.example.com"
+                  ],
+                  "operand": "equals"
+                }
+              },
+              {
+                "type": "httpUri",
+                "name": "1",
+                "event": "request",
+                "index": 1,
+                "pathSegment": {
+                  "values": [
+                    "tea"
+                  ],
+                  "operand": "equals"
+                }
+              }
+            ],
+            "actions": [
+              {
+                "type": "forward",
+                "event": "request",
+                "select": {
+                  "pool": {
+                    "use": "tea_svc_8080_cafe_cafe_example_com_tea"
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "strategy": "first-match"
+      },
+      "mocha_svc_8080_cafe_cafe_example_com_mocha": {
+        "class": "Pool",
+        "members": [
+          {
+            "addressDiscovery": "static",
+            "serverAddresses": [
+              "10.128.0.168"
+            ],
+            "servicePort": 8080,
+            "shareNodes": true
+          },
+          {
+            "addressDiscovery": "static",
+            "serverAddresses": [
+              "10.128.0.169"
+            ],
+            "servicePort": 8080,
+            "shareNodes": true
+          },
+          {
+            "addressDiscovery": "static",
+            "serverAddresses": [
+              "10.128.0.170"
+            ],
+            "servicePort": 8080,
+            "shareNodes": true
+          }
+        ],
+        "minimumMonitors": "all",
+        "remark": "crd_192_168_100_32_80 loadbalances this pool"
+      },
+      "tea_svc_8080_cafe_cafe_example_com_tea": {
+        "class": "Pool",
+        "members": [
+          {
+            "addressDiscovery": "static",
+            "serverAddresses": [
+              "10.128.0.162"
+            ],
+            "servicePort": 8080,
+            "shareNodes": true
+          },
+          {
+            "addressDiscovery": "static",
+            "serverAddresses": [
+              "10.128.0.164"
+            ],
+            "servicePort": 8080,
+            "shareNodes": true
+          },
+          {
+            "addressDiscovery": "static",
+            "serverAddresses": [
+              "10.128.0.165"
+            ],
+            "servicePort": 8080,
+            "shareNodes": true
+          }
+        ],
+        "minimumMonitors": "all",
+        "remark": "crd_192_168_100_32_80 loadbalances this pool"
+      },
+      "template": "shared"
+    },
+    "class": "Tenant",
+    "defaultRouteDomain": 0,
+    "label": "CIS-CRD",
+    "useCommonRouteDomainTenant": true
+  }
+}
